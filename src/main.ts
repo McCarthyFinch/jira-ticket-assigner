@@ -53,7 +53,7 @@ async function run(): Promise<void> {
       console.info('No jira ticket found in branch');
     }
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed((error as Error).message);
   }
 }
 
