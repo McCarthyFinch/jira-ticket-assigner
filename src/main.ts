@@ -19,7 +19,7 @@ async function run(): Promise<void> {
   try {
     const token: string = core.getInput('repo-token');
     const jira: string = core.getInput('jira-url');
-    const projectPrefixes: string[] = core.getMultilineInput('project-prefixes');
+    const projectPrefixes: string[] = core.getMultilineInput('project-prefixes').filter(p => p);
     const octokit = github.getOctokit(token);
 
     if (!github.context.payload.pull_request) {

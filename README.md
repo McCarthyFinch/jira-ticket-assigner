@@ -22,9 +22,9 @@ jobs:
           # Jira url domain
           jira-url: https://mccarthyfinch.atlassian.net
           # Ticket prefix such as MYPROJ in MYPROJ-1234
-          project-prefixes:
-						- PA
-						- ES
+          project-prefixes: |
+						PA
+						ES
 ```
 
 Example v2 config:
