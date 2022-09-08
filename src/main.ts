@@ -2,7 +2,10 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 function getTicketID(branchName: string, projectPrefixes: string[]) {
-	const regexes: RegExp[] = projectPrefixes.map(projectPrefix => new RegExp(`${projectPrefix}-[0-9]+`, 'gm'));
+	const regexes: RegExp[] = projectPrefixes
+		.map(prefix => prefix.trim())
+		.filter(prefix => !!prefix)
+		.map(projectPrefix => new RegExp(`${projectPrefix}-[0-9]+`, 'gm'));
 	let ticketID: string = "";
 	for (let i = 0; i < regexes.length; i++) {
 		const regex = regexes[i];
@@ -19,7 +22,7 @@ async function run(): Promise<void> {
   try {
     const token: string = core.getInput('repo-token');
     const jira: string = core.getInput('jira-url');
-    const projectPrefixes: string[] = core.getMultilineInput('project-prefixes').filter(p => p);
+    const projectPrefixes: string[] = core.getMultilineInput('project-prefixes');
     const octokit = github.getOctokit(token);
 
     if (!github.context.payload.pull_request) {
