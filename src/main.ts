@@ -5,7 +5,8 @@ async function run(): Promise<void> {
   try {
     const token: string = core.getInput('repo-token');
     const jira: string = core.getInput('jira-url');
-    const projectPrefix: string = core.getInput('project-prefix');
+    const projectPrefixList: string = core.getInput('project-prefixes');
+		const projectPrefixes = projectPrefixList.split(',').map((prefix) => prefix.trim());
     const octokit = github.getOctokit(token);
 
     if (!github.context.payload.pull_request) {
@@ -24,11 +25,19 @@ async function run(): Promise<void> {
     const issue_number: number = github.context.payload.pull_request.number;
     const owner: string = github.context.payload.repository.owner.login;
     const repo: string = github.context.payload.repository.name;
-    const regex: RegExp = new RegExp(`${projectPrefix}-[0-9]+`, 'gm');
-    const ticketMatches: string[] = branchName.match(regex) || [];
+    const regexes: RegExp[] = projectPrefixes.map(projectPrefix => new RegExp(`${projectPrefix}-[0-9]+`, 'gm'));
 
-    if (ticketMatches.length) {
-      const ticketId = ticketMatches.reverse()[0]; // get last matching jira ticket
+		let ticketId: string = "";
+		for (let i = 0; i < regexes.length; i++) {
+			const regex = regexes[i];
+			const ticketMatches: string[] = branchName.match(regex) || [];
+			if (ticketMatches.length) {
+				ticketId = ticketMatches.reverse()[0]; // get last matching jira ticket
+				break;
+			}
+		}
+
+    if (ticketId) {
       const body: string = `Jira Ticket: [${jira}/browse/${ticketId}](${jira}/browse/${ticketId})`;
 
       const comments = await octokit.issues.listComments({

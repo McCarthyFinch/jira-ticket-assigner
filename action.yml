@@ -1,14 +1,11 @@
 name: 'Jira Ticket Assigner'
 description: 'Automatically adds jira tickets by scanning the branch name and adding them as a comment to the PR'
-author: 'Steven Masala'
+author: 'Steven Masala & Shavaun MacArthur'
 inputs:
-  repo-token:              # change this
-    description: 'Repo token'
-    default: ${{ github.token }}
   jira-url:
     description: 'Jira url domain'
-  project-prefix:
-    description: 'Ticket prefix such as MYPROJ in MYPROJ-1234'
+  project-prefixes:
+    description: 'Comma-separated ticket prefixes such as MYPROJ in MYPROJ-1234'
 runs:
   using: 'node12'
   main: 'dist/index.js'
