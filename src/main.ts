@@ -1,13 +1,26 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+function getTicketID(branchName: string, projectPrefixes: string[]) {
+	const regexes: RegExp[] = projectPrefixes.map(projectPrefix => new RegExp(`${projectPrefix}-[0-9]+`, 'gm'));
+	let ticketID: string = "";
+	for (let i = 0; i < regexes.length; i++) {
+		const regex = regexes[i];
+		const ticketMatches: string[] = branchName.match(regex) || [];
+		if (ticketMatches.length) {
+			ticketID = ticketMatches.reverse()[0]; // get last matching jira ticket
+			break;
+		}
+	}
+	return ticketID;
+}
+
 async function run(): Promise<void> {
   try {
     const token: string = core.getInput('repo-token');
     const jira: string = core.getInput('jira-url');
     const projectPrefixList: string = core.getInput('project-prefixes');
 		const projectPrefixes = projectPrefixList.split(',').map((prefix) => prefix.trim());
-		console.info(projectPrefixes);
     const octokit = github.getOctokit(token);
 
     if (!github.context.payload.pull_request) {
@@ -26,21 +39,11 @@ async function run(): Promise<void> {
     const issue_number: number = github.context.payload.pull_request.number;
     const owner: string = github.context.payload.repository.owner.login;
     const repo: string = github.context.payload.repository.name;
-    const regexes: RegExp[] = projectPrefixes.map(projectPrefix => new RegExp(`(${projectPrefix}-[0-9]+)`, 'gm'));
 
-		let ticketId: string = "";
-		for (let i = 0; i < regexes.length; i++) {
-			const regex = regexes[i];
-			const ticketMatches: string[] = branchName.match(regex) || [];
-			if (ticketMatches.length) {
-				console.info(ticketMatches);
-				ticketId = ticketMatches.reverse()[0]; // get last matching jira ticket
-				break;
-			}
-		}
+		const ticketID = getTicketID(branchName, projectPrefixes);
 
-    if (ticketId) {
-      const body: string = `Jira Ticket: [${jira}/browse/${ticketId}](${jira}/browse/${ticketId})`;
+    if (ticketID) {
+      const body: string = `Jira Ticket: [${jira}/browse/${ticketID}](${jira}/browse/${ticketID})`;
 
       const comments = await octokit.issues.listComments({
         issue_number,
