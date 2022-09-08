@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 function getTicketID(branchName: string, projectPrefixes: string[]) {
-	console.info(branchName + " ", + JSON.stringify(projectPrefixes));
+	core.info(branchName + " " + JSON.stringify(projectPrefixes));
 	const regexes: RegExp[] = projectPrefixes
 		.map(projectPrefix => new RegExp(`${projectPrefix}-[0-9]+`, 'gm'));
 	let ticketID: string = "";
@@ -46,7 +46,7 @@ async function run(): Promise<void> {
 			projectPrefixes.map(prefix => prefix.trim()).filter(prefix => !!prefix),
 		);
 
-		console.info("ticketID: " + ticketID);
+		core.info("ticketID: " + ticketID);
 
     if (ticketID) {
       const body: string = `Jira Ticket: [${jira}/browse/${ticketID}](${jira}/browse/${ticketID})`;
