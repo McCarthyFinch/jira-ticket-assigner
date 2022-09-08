@@ -7,7 +7,7 @@ async function run(): Promise<void> {
     const jira: string = core.getInput('jira-url');
     const projectPrefixList: string = core.getInput('project-prefixes');
 		const projectPrefixes = projectPrefixList.split(',').map((prefix) => prefix.trim());
-		console.log(projectPrefixes);
+		console.info(projectPrefixes);
     const octokit = github.getOctokit(token);
 
     if (!github.context.payload.pull_request) {
@@ -33,7 +33,7 @@ async function run(): Promise<void> {
 			const regex = regexes[i];
 			const ticketMatches: string[] = branchName.match(regex) || [];
 			if (ticketMatches.length) {
-				console.log(ticketMatches);
+				console.info(ticketMatches);
 				ticketId = ticketMatches.reverse()[0]; // get last matching jira ticket
 				break;
 			}
