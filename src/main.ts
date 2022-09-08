@@ -2,9 +2,8 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 function getTicketID(branchName: string, projectPrefixes: string[]) {
+	console.info(branchName + " ", + JSON.stringify(projectPrefixes));
 	const regexes: RegExp[] = projectPrefixes
-		.map(prefix => prefix.trim())
-		.filter(prefix => !!prefix)
 		.map(projectPrefix => new RegExp(`${projectPrefix}-[0-9]+`, 'gm'));
 	let ticketID: string = "";
 	for (let i = 0; i < regexes.length; i++) {
@@ -42,7 +41,12 @@ async function run(): Promise<void> {
     const owner: string = github.context.payload.repository.owner.login;
     const repo: string = github.context.payload.repository.name;
 
-		const ticketID = getTicketID(branchName, projectPrefixes);
+		const ticketID = getTicketID(
+			branchName,
+			projectPrefixes.map(prefix => prefix.trim()).filter(prefix => !!prefix),
+		);
+
+		console.info("ticketID: " + ticketID);
 
     if (ticketID) {
       const body: string = `Jira Ticket: [${jira}/browse/${ticketID}](${jira}/browse/${ticketID})`;
